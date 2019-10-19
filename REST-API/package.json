@@ -6,11 +6,17 @@
   "scripts": {
     "tsc": "tsc",
     "start": "npm run watch",
-    "serve": "tsc && node dist/server.js",
+    "build": "tsc",
+    "serve": "ts-node server.ts",
     "watch": "nodemon",
     "commit": "git add --all && git-cz",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register ./test/**/*.spec.ts",
+    "prettier": "prettier --write '**/*.{json,ts}'",
+    "lint": "npm run prettier && tslint -c tslint.json --project ."
   },
+  "pre-commit": [
+    "lint"
+  ],
   "author": "pablohgm@gmail.com",
   "license": "Apache-2.0",
   "dependencies": {
@@ -23,14 +29,22 @@
     "validator": "^11.1.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.3",
     "@types/express": "^4.17.1",
-    "cz-conventional-changelog": "^3.0.2",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.11.1",
+    "@types/sinon": "^7.5.0",
+    "@types/supertest": "^2.0.8",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.18.2",
+    "sinon": "^7.5.0",
+    "supertest": "^4.0.2",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.0-beta"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./REST-API/node_modules/cz-conventional-changelog"
-    }
   }
 }

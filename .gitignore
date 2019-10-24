@@ -3,6 +3,8 @@
 
 #Config
 /**/*.env
+/**/.nyc_output
+/**/coverage
 
 #FrontEnd
 /node_modules/

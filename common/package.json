@@ -7,8 +7,8 @@
     "prettier": "prettier --write '**/*.{json,ts}'",
     "tslint": "tslint '{src, test}/**/*.ts'",
     "lint": "npm run prettier && npm run tslint",
-    "test-unit": "env-cmd nyc mocha -r ts-node/register ./test/unit/**/*.spec.ts --exit",
-    "test-integration": "env-cmd nyc mocha -r ts-node/register ./test/integration/**/*.spec.ts --exit",
+    "test-unit": "env-cmd mocha -r ts-node/register ./test/unit/**/*.spec.ts --exit",
+    "test-integration": "env-cmd mocha -r ts-node/register ./test/integration/**/*.spec.ts --exit",
     "coverage": "env-cmd nyc mocha -r ts-node/register ./test/**/*.spec.ts --exit",
     "test": "npm run coverage"
   },
@@ -21,24 +21,29 @@
     "validator": "^11.1.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
     "@types/chai": "^4.2.4",
+    "@types/jsonwebtoken": "^8.3.5",
     "@types/mocha": "^5.2.7",
     "@types/mongodb": "^3.3.6",
     "@types/node": "^12.11.2",
     "chai": "^4.2.0",
     "env-cmd": "^10.0.1",
     "husky": "^3.0.9",
+    "import-sort-style-module": "^6.0.0",
     "mocha": "^6.2.2",
+    "module-alias": "^2.2.2",
     "nyc": "^14.1.1",
     "pre-commit": "^1.2.2",
     "prettier": "^1.18.2",
+    "prettier-plugin-import-sort": "0.0.3",
     "sinon-mongo": "^1.0.2",
     "source-map-support": "^0.5.13",
     "ts-mockito": "^2.5.0",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.7.0-beta"
   },
   "mocha": {
     "timeout": 4000
@@ -62,6 +67,12 @@
   "husky": {
     "hooks": {
       "pre-commit": "npm run lint"
+    }
+  },
+  "importSort": {
+    ".ts": {
+      "style": "module",
+      "parser": "typescript"
     }
   }
 }

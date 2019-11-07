@@ -15,14 +15,15 @@
   "author": "pablohgm@gmail.com",
   "license": "Apache-2.0",
   "dependencies": {
+    "@hapi/joi": "^16.1.7",
     "bcrypt": "^3.0.6",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^3.3.3",
-    "validator": "^11.1.0"
+    "mongodb": "^3.3.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/chai": "^4.2.4",
+    "@types/hapi__joi": "^16.0.3",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/mocha": "^5.2.7",
     "@types/mongodb": "^3.3.6",

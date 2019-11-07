@@ -15,7 +15,7 @@ describe('Integration: UserService', () => {
     database = client.db(MONGO_DATABASE)
     user = {
       name: 'pablohgm',
-      password: 'somepassword!',
+      password: 'somePassword!',
       email: 'some-email@gmail.com'
     }
   })
@@ -49,13 +49,14 @@ describe('Integration: UserService', () => {
     it('should login an user', async () => {
       const result = await service.login(user.email, user.password)
       expect(result).to.be.ok
-      expect(result.user.name).to.be.an('string')
-      expect(result.user.password).to.be.an('string')
+      expect(result.email).to.be.an('string')
+      expect(result.name).to.be.an('string')
       expect(result.token).to.be.an('string')
+      expect(result.expiresIn).to.be.an('string')
     })
 
     it('should return invalid email error', async () => {
-      const result = await service.login('', user.password)
+      const result = await service.login('test@test.com', user.password)
       expect(result).to.be.ok
       expect(result.user).to.equal(undefined)
       expect(result.token).to.equal(undefined)
@@ -63,7 +64,7 @@ describe('Integration: UserService', () => {
     })
 
     it('should return invalid password error', async () => {
-      const result = await service.login(user.email, '')
+      const result = await service.login(user.email, 'fakePassword')
       expect(result).to.be.ok
       expect(result.user).to.equal(undefined)
       expect(result.token).to.equal(undefined)

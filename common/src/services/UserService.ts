@@ -1,9 +1,12 @@
+import { Schema } from '@hapi/joi'
 import { compare, hash } from 'bcrypt'
 import * as JWT from 'jsonwebtoken'
 
 import { User } from '../entities/User'
 import { UserRepository } from '../repositories/UserRepository'
-import { IAuthentication } from '../types'
+import LoginSchema from '../schemas/LoginSchema'
+import UserSchema from '../schemas/UserSchema'
+import { IAuthentication, IValidationResult } from '../types'
 
 /**
  * Class User Service
@@ -11,6 +14,7 @@ import { IAuthentication } from '../types'
 export class UserService {
   public static INVALID_EMAIL_ERROR: string = 'Invalid email'
   public static INVALID_PASSWORD_ERROR: string = 'Invalid password'
+  public static EXPIRES_IN: string = '7d'
   private userRepository: UserRepository
 
   /**
@@ -26,9 +30,13 @@ export class UserService {
    * @param {object} user
    */
   public async create(user: User): Promise<string> {
+    const validation = await this.validate(UserSchema, user)
+    if (!validation.isValid) {
+      return validation.errorMessages
+    }
     const password = await this.encryptPassword(user.password)
     const insertedId = await this.userRepository.save({ ...user, password })
-    const token = this.generateAuthToken(insertedId)
+    const token = this.generateAuthToken(insertedId, UserService.EXPIRES_IN)
     await this.userRepository.updateTokens(insertedId, [token])
 
     return insertedId
@@ -36,7 +44,7 @@ export class UserService {
 
   /**
    * Delete an user by email
-   * @param {Promise<boolean>}
+   * @return {Promise<boolean>}
    */
   public async deleteByEmail(email: string): Promise<boolean> {
     return this.userRepository.deleteByEmail(email)
@@ -51,7 +59,11 @@ export class UserService {
   public async login(
     email: string,
     password: string
-  ): Promise<IAuthentication> {
+  ): Promise<IAuthentication | string> {
+    const validation = await this.validate(LoginSchema, { email, password })
+    if (!validation.isValid) {
+      return validation.errorMessages
+    }
     const user = await this.userRepository.findByEmail(email)
     if (!user) {
       return { error: UserService.INVALID_EMAIL_ERROR }
@@ -60,18 +72,22 @@ export class UserService {
     if (!isPasswordCorrect) {
       return { error: UserService.INVALID_PASSWORD_ERROR }
     }
-    const token = this.generateAuthToken(user._id.toHexString())
+    const expiresIn = UserService.EXPIRES_IN
+    const token = this.generateAuthToken(user._id.toHexString(), expiresIn)
+    const { name } = user
 
-    return { user, token }
+    return { name, email, token, expiresIn }
   }
 
   /**
    * Generate Authentication token
    * @param {string} id
    */
-  public generateAuthToken(id: string): string {
+  public generateAuthToken(id: string, expiresIn: string): string {
     const { JWT_KEY } = process.env
-    const token = JWT.sign({ _id: id }, JWT_KEY)
+    const token = JWT.sign({ _id: id }, JWT_KEY, {
+      expiresIn
+    })
 
     return token
   }
@@ -83,5 +99,22 @@ export class UserService {
    */
   public encryptPassword(password: string): Promise<string> {
     return hash(password, 8)
+  }
+
+  /**
+   * Validate object
+   * @param {ObjectSchema} schema
+   * @return {Promise<IValidationResult>}
+   */
+  public async validate<T>(
+    schema: Schema,
+    model: T
+  ): Promise<IValidationResult> {
+    const { error } = schema.validate(model)
+
+    return {
+      errorMessages: error ? `Validation Error: ${error.message}` : null,
+      isValid: !error
+    }
   }
 }

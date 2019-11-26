@@ -1,8 +1,10 @@
 import { Schema } from '@hapi/joi'
 import { compare, hash } from 'bcrypt'
+import { BAD_REQUEST } from 'http-status-codes'
 import * as JWT from 'jsonwebtoken'
 
 import { User } from '../entities/User'
+import { ErrorHelper } from '../helpers/ErrorHelper'
 import { UserRepository } from '../repositories/UserRepository'
 import LoginSchema from '../schemas/LoginSchema'
 import UserSchema from '../schemas/UserSchema'
@@ -12,8 +14,6 @@ import { IAuthentication, IValidationResult } from '../types'
  * Class User Service
  */
 export class UserService {
-  public static INVALID_EMAIL_ERROR: string = 'Invalid email'
-  public static INVALID_PASSWORD_ERROR: string = 'Invalid password'
   public static EXPIRES_IN: string = '7d'
   private userRepository: UserRepository
 
@@ -29,17 +29,17 @@ export class UserService {
    * Create an user
    * @param {object} user
    */
-  public async create(user: User): Promise<string> {
+  public async create(user: User): Promise<{ id: string } | ErrorHelper> {
     const validation = await this.validate(UserSchema, user)
     if (!validation.isValid) {
-      return validation.errorMessages
+      return new ErrorHelper(BAD_REQUEST, validation.errorMessages)
     }
     const password = await this.encryptPassword(user.password)
     const insertedId = await this.userRepository.save({ ...user, password })
     const token = this.generateAuthToken(insertedId, UserService.EXPIRES_IN)
     await this.userRepository.updateTokens(insertedId, [token])
 
-    return insertedId
+    return { id: insertedId }
   }
 
   /**
@@ -59,18 +59,18 @@ export class UserService {
   public async login(
     email: string,
     password: string
-  ): Promise<IAuthentication | string> {
+  ): Promise<IAuthentication | ErrorHelper> {
     const validation = await this.validate(LoginSchema, { email, password })
     if (!validation.isValid) {
-      return validation.errorMessages
+      return new ErrorHelper(BAD_REQUEST, validation.errorMessages)
     }
     const user = await this.userRepository.findByEmail(email)
     if (!user) {
-      return { error: UserService.INVALID_EMAIL_ERROR }
+      return new ErrorHelper(BAD_REQUEST, ErrorHelper.INVALID_EMAIL_ERROR)
     }
     const isPasswordCorrect = await compare(password, user.password)
     if (!isPasswordCorrect) {
-      return { error: UserService.INVALID_PASSWORD_ERROR }
+      return new ErrorHelper(BAD_REQUEST, ErrorHelper.INVALID_PASSWORD_ERROR)
     }
     const expiresIn = UserService.EXPIRES_IN
     const token = this.generateAuthToken(user._id.toHexString(), expiresIn)

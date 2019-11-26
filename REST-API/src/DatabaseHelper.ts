@@ -1,4 +1,4 @@
-import { Db, MongoClient, MongoError } from 'mongodb'
+import { Db, MongoClient } from 'mongodb'
 
 /**
  * Class DatabaseHelper
@@ -10,19 +10,13 @@ export class DatabaseHelper {
    * Connect with a mongo database using the URI from the .env file
    * @param callback
    */
-  public static connect(callback: any) {
+  public static async connect(callback?: any) {
     const { MONGO_URI } = process.env
-    MongoClient.connect(
-      MONGO_URI,
-      { useUnifiedTopology: true },
-      (error: MongoError, client: MongoClient) => {
-        if (error) {
-          throw error
-        }
-        this.client = client
-        callback()
-      }
-    )
+    const client = await MongoClient.connect(MONGO_URI, {
+      useUnifiedTopology: true
+    })
+    this.client = client
+    callback && callback()
   }
 
   /**
@@ -30,6 +24,7 @@ export class DatabaseHelper {
    */
   public static get(): Db {
     const { MONGO_DATABASE } = process.env
+
     return this.client.db(MONGO_DATABASE)
   }
 

@@ -1,4 +1,5 @@
 import { Router } from 'express'
+
 import { AuthController } from '../controller/AuthController'
 import { UserController } from '../controller/UserController'
 
@@ -26,7 +27,7 @@ export class UserRoutes {
   public routes(): void {
     const { auth } = this.authController
     const { createUser } = this.userController
-    this.router.post('/createUser', auth, createUser)
+    this.router.post('/create', auth, createUser)
   }
 
   /**

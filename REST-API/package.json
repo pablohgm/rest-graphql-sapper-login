@@ -10,34 +10,34 @@
     "serve": "env-cmd ts-node Server.ts",
     "watch": "nodemon",
     "commit": "git add --all && git-cz",
-    "test": "mocha -r ts-node/register ./test/**/*.spec.ts",
+    "test-unit": "env-cmd ts-mocha --paths -p ./tsconfig.json ./test/unit/**/*.spec.ts --exit",
+    "test-integration": "env-cmd ts-mocha --paths -p ./tsconfig.json  ./test/integration/**/*.spec.ts --exit",
+    "test": "env-cmd ts-mocha --paths -p ./tsconfig.json ./test/**/*.spec.ts --exit",
+    "coverage": "env-cmd nyc ts-mocha --paths -p ./tsconfig.json ./test/**/*.spec.ts --exit",
     "prettier": "prettier --write '**/*.{json,ts}'",
     "prettier:quick": "pretty-quick --staged --pattern '**/*.{json,ts}'",
-    "lint": "npm run prettier:quick && tslint -c tslint.json --project ."
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint"
-    }
+    "lint": "npm run prettier && tslint -c tslint.json --project ."
   },
   "author": "pablohgm@gmail.com",
   "license": "Apache-2.0",
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "http-status-codes": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.3.3",
     "validator": "^11.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.3",
+    "@types/expect": "^24.3.0",
     "@types/express": "^4.17.1",
     "@types/express-jwt": "0.0.42",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/mocha": "^5.2.7",
     "@types/mongodb": "^3.3.6",
     "@types/node": "^12.11.2",
-    "@types/sinon": "^7.5.0",
+    "@types/sinon": "^7.5.1",
     "@types/supertest": "^2.0.8",
     "chai": "^4.2.0",
     "env-cmd": "^10.0.1",
@@ -45,24 +45,47 @@
     "import-sort-style-module": "^6.0.0",
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
+    "nyc": "^14.1.1",
     "prettier": "^1.18.2",
-    "prettier-quick": "0.0.5",
+    "prettier-plugin-import-sort": "0.0.3",
+    "pretty-quick": "^2.0.1",
     "sinon": "^7.5.0",
     "supertest": "^4.0.2",
+    "ts-mocha": "^6.0.0",
     "ts-node": "^8.4.1",
     "tsconfig-paths": "^3.9.0",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.0-beta"
   },
-  "_moduleAliases": {
-    "@services": "../backend/src/services/",
-    "@repository": "../backend/src/repository/"
-  },
   "importSort": {
     ".ts": {
       "style": "module",
       "parser": "typescript"
+    }
+  },
+  "mocha": {
+    "timeout": 4000
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html",
+      "text-summary"
+    ],
+    "all": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
     }
   }
 }

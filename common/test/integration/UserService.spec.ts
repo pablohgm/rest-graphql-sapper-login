@@ -33,8 +33,8 @@ describe('Integration: UserService', () => {
     it('should create an user', async () => {
       const result = await service.create(user)
       expect(result).to.be.ok
-      expect(result).to.be.an('string')
-      expect(result.length).to.equal(24)
+      expect(result.id).to.be.an('string')
+      expect(result.id.length).to.equal(24)
     })
 
     it('should delete an user', async () => {
@@ -56,19 +56,17 @@ describe('Integration: UserService', () => {
     })
 
     it('should return invalid email error', async () => {
-      const result = await service.login('test@test.com', user.password)
+      const result = await service.login('a@test.com', user.password)
       expect(result).to.be.ok
-      expect(result.user).to.equal(undefined)
-      expect(result.token).to.equal(undefined)
-      expect(result.error).to.equal('Invalid email')
+      expect(result.message).to.equal('Invalid email')
+      expect(result.statusCode).to.equal(400)
     })
 
     it('should return invalid password error', async () => {
       const result = await service.login(user.email, 'fakePassword')
       expect(result).to.be.ok
-      expect(result.user).to.equal(undefined)
-      expect(result.token).to.equal(undefined)
-      expect(result.error).to.equal('Invalid password')
+      expect(result.message).to.equal('Invalid password')
+      expect(result.statusCode).to.equal(400)
     })
   })
 })

@@ -5,7 +5,9 @@
   "rules": {
     "quotemark": [true, "single"],
     "semicolon": [true, "never"],
-    "no-console": false
+    "newline-before-return": true,
+    "no-console": false,
+    "one-variable-per-declaration": true
   },
   "rulesDirectory": []
 }
